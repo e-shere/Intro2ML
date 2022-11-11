@@ -1,8 +1,9 @@
 import numpy as np
 import pickle
+import typing
 
 
-def xavier_init(size, gain = 1.0):
+def xavier_init(size: tuple, gain: float = 1.0) -> np.ndarray:
     """
     Xavier initialization of network weights.
 
@@ -49,7 +50,7 @@ class MSELossLayer(Layer):
 
     @staticmethod
     def _mse(y_pred, y_target):
-        return np.mean((y_pred - y_target) ** 2)
+        return np.mean((y_pred - y_target)**2)
 
     @staticmethod
     def _mse_grad(y_pred, y_target):
@@ -104,7 +105,7 @@ class SigmoidLayer(Layer):
         """
         self._cache_current = None
 
-    def forward(self, x):
+    def forward(self, x: np.ndarray) -> np.ndarray:
         """ 
         Performs forward pass through the Sigmoid layer.
 
@@ -126,7 +127,7 @@ class SigmoidLayer(Layer):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def backward(self, grad_z):
+    def backward(self, grad_z: np.ndarray) -> np.ndarray:
         """
         Given `grad_z`, the gradient of some scalar (e.g. loss) with respect to
         the output of this layer, performs back pass through the layer (i.e.
@@ -161,7 +162,7 @@ class ReluLayer(Layer):
         """
         self._cache_current = None
 
-    def forward(self, x):
+    def forward(self, x: np.ndarray) -> np.ndarray:
         """ 
         Performs forward pass through the Relu layer.
 
@@ -183,7 +184,7 @@ class ReluLayer(Layer):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def backward(self, grad_z):
+    def backward(self, grad_z: np.ndarray) -> np.ndarray:
         """
         Given `grad_z`, the gradient of some scalar (e.g. loss) with respect to
         the output of this layer, performs back pass through the layer (i.e.
@@ -212,7 +213,7 @@ class LinearLayer(Layer):
     LinearLayer: Performs affine transformation of input.
     """
 
-    def __init__(self, n_in, n_out):
+    def __init__(self, n_in: int, n_out: int):
         """
         Constructor of the linear layer.
 
@@ -237,7 +238,7 @@ class LinearLayer(Layer):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def forward(self, x):
+    def forward(self, x: np.ndarray) -> np.ndarray:
         """
         Performs forward pass through the layer (i.e. returns Wx + b).
 
@@ -259,7 +260,7 @@ class LinearLayer(Layer):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def backward(self, grad_z):
+    def backward(self, grad_z: np.ndarray) -> np.ndarray:
         """
         Given `grad_z`, the gradient of some scalar (e.g. loss) with respect to
         the output of this layer, performs back pass through the layer (i.e.
@@ -282,7 +283,7 @@ class LinearLayer(Layer):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def update_params(self, learning_rate):
+    def update_params(self, learning_rate: float):
         """
         Performs one step of gradient descent with given learning rate on the
         layer's parameters using currently stored gradients.
@@ -306,15 +307,16 @@ class MultiLayerNetwork(object):
     activation functions.
     """
 
-    def __init__(self, input_dim, neurons, activations):
+    def __init__(self, input_dim: int, neurons: list[int],
+                 activations: list[str]):
         """
         Constructor of the multi layer network.
 
         Arguments:
             - input_dim {int} -- Number of features in the input (excluding 
                 the batch dimension).
-            - neurons {list} -- Number of neurons in each linear layer 
-                represented as a list. The length of the list determines the 
+            - neurons {list} -- Number of neurons in each linear layer 
+                represented as a list. The length of the list determines the 
                 number of linear layers.
             - activations {list} -- List of the activation functions to apply 
                 to the output of each linear layer.
@@ -331,7 +333,7 @@ class MultiLayerNetwork(object):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def forward(self, x):
+    def forward(self, x: np.ndarray) -> np.ndarray:
         """
         Performs forward pass through the network.
 
@@ -345,7 +347,7 @@ class MultiLayerNetwork(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        return np.zeros((1, self.neurons[-1])) # Replace with your own code
+        return np.zeros((1, self.neurons[-1]))  # Replace with your own code
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -354,7 +356,7 @@ class MultiLayerNetwork(object):
     def __call__(self, x):
         return self.forward(x)
 
-    def backward(self, grad_z):
+    def backward(self, grad_z: np.ndarray) -> np.ndarray:
         """
         Performs backward pass through the network.
 
@@ -375,7 +377,7 @@ class MultiLayerNetwork(object):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def update_params(self, learning_rate):
+    def update_params(self, learning_rate: float):
         """
         Performs one step of gradient descent with given learning rate on the
         parameters of all layers using currently stored gradients.
@@ -393,7 +395,7 @@ class MultiLayerNetwork(object):
         #######################################################################
 
 
-def save_network(network, fpath):
+def save_network(network: MultiLayerNetwork, fpath: str):
     """
     Utility function to pickle `network` at file path `fpath`.
     """
@@ -401,7 +403,7 @@ def save_network(network, fpath):
         pickle.dump(network, f)
 
 
-def load_network(fpath):
+def load_network(fpath: str) -> MultiLayerNetwork:
     """
     Utility function to load network found at file path `fpath`.
     """
@@ -417,12 +419,12 @@ class Trainer(object):
 
     def __init__(
         self,
-        network,
-        batch_size,
-        nb_epoch,
-        learning_rate,
-        loss_fun,
-        shuffle_flag,
+        network: MultiLayerNetwork,
+        batch_size: int,
+        nb_epoch: int,
+        learning_rate: float,
+        loss_fun: str,
+        shuffle_flag: bool,
     ):
         """
         Constructor of the Trainer.
@@ -453,7 +455,8 @@ class Trainer(object):
         #######################################################################
 
     @staticmethod
-    def shuffle(input_dataset, target_dataset):
+    def shuffle(input_dataset: np.ndarray,
+                target_dataset: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """
         Returns shuffled versions of the inputs.
 
@@ -476,7 +479,7 @@ class Trainer(object):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def train(self, input_dataset, target_dataset):
+    def train(self, input_dataset: np.ndarray, target_dataset: np.ndarray):
         """
         Main training loop. Performs the following steps `nb_epoch` times:
             - Shuffles the input data (if `shuffle` is True)
@@ -505,7 +508,8 @@ class Trainer(object):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def eval_loss(self, input_dataset, target_dataset):
+    def eval_loss(self, input_dataset: np.ndarray,
+                  target_dataset: np.ndarray) -> float:
         """
         Function that evaluate the loss function for given data. Returns
         scalar value.
@@ -535,7 +539,7 @@ class Preprocessor(object):
     The object can also be used to revert the changes.
     """
 
-    def __init__(self, data):
+    def __init__(self, data: np.ndarray):
         """
         Initializes the Preprocessor according to the provided dataset.
         (Does not modify the dataset.)
@@ -553,7 +557,7 @@ class Preprocessor(object):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def apply(self, data):
+    def apply(self, data: np.ndarray) -> np.ndarray:
         """
         Apply the pre-processing operations to the provided dataset.
 
@@ -572,7 +576,7 @@ class Preprocessor(object):
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def revert(self, data):
+    def revert(self, data: np.ndarray) -> np.ndarray:
         """
         Revert the pre-processing operations to retrieve the original dataset.
 
