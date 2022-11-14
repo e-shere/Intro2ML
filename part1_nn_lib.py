@@ -50,7 +50,7 @@ class MSELossLayer(Layer):
 
     @staticmethod
     def _mse(y_pred, y_target):
-        return np.mean((y_pred - y_target)**2)
+        return np.mean((y_pred - y_target) ** 2)
 
     @staticmethod
     def _mse_grad(y_pred, y_target):
@@ -227,8 +227,8 @@ class LinearLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        self._W = None
-        self._b = None
+        self._W = xavier_init((n_in, n_out))
+        self._b = np.zeros(n_out)  # doesn't shape of this need to be (batch_size, n_out)?
 
         self._cache_current = None
         self._grad_W_current = None
@@ -254,7 +254,12 @@ class LinearLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        z = np.add(np.matmul(self._W, x), self._b)
+
+        # add things to cache
+        self._cache_current = x  # do i need to store anything else?
+
+        return z
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -277,7 +282,12 @@ class LinearLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        x = self._cache_current
+        batch_size, n_out = grad_z.shape
+        self._grad_W_current = np.matmul(x.T, grad_z)
+        self._grad_b_current = np.matmul(np.ones(batch_size), grad_z)
+
+        return np.matmul(grad_z, self._W.T)  # i think i should be using cached values but i dont get why
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -294,7 +304,8 @@ class LinearLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        self._W = np.subtract(self._W, learning_rate * self._grad_W_current)
+        self._b = np.subtract(self._b, learning_rate * self._grad_b_current)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -418,13 +429,13 @@ class Trainer(object):
     """
 
     def __init__(
-        self,
-        network: MultiLayerNetwork,
-        batch_size: int,
-        nb_epoch: int,
-        learning_rate: float,
-        loss_fun: str,
-        shuffle_flag: bool,
+            self,
+            network: MultiLayerNetwork,
+            batch_size: int,
+            nb_epoch: int,
+            learning_rate: float,
+            loss_fun: str,
+            shuffle_flag: bool,
     ):
         """
         Constructor of the Trainer.
