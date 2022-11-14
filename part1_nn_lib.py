@@ -257,7 +257,7 @@ class LinearLayer(Layer):
         z = np.add(np.matmul(self._W, x), self._b)
 
         # add things to cache
-        self._cache_current = x  # do i need to store anything else?
+        self._cache_current = {'x': x}
 
         return z
 
@@ -282,10 +282,10 @@ class LinearLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        x = self._cache_current
+        x = self._cache_current['x']
         batch_size, n_out = grad_z.shape
         self._grad_W_current = np.matmul(x.T, grad_z)
-        self._grad_b_current = np.matmul(np.ones(batch_size), grad_z)
+        self._grad_b_current = np.matmul(np.ones(batch_size).T, grad_z)
 
         return np.matmul(grad_z, self._W.T)  # i think i should be using cached values but i dont get why
 
