@@ -105,6 +105,9 @@ class SigmoidLayer(Layer):
         """
         self._cache_current = None
 
+    def _sigmoid(y):
+            return 1/(1 + np.exp(-y))
+
     def forward(self, x: np.ndarray) -> np.ndarray:
         """ 
         Performs forward pass through the Sigmoid layer.
@@ -121,7 +124,11 @@ class SigmoidLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+
+        # add things to cache
+        self._cache_current = {'x': x}
+
+        return _sigmoid(x)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -144,7 +151,7 @@ class SigmoidLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        return _sigmoid(self._cache_current['x']) * (1 - _sigmoid(self._cache_current['x']))
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -178,7 +185,13 @@ class ReluLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        def relu(y):
+            return np.maximum(0, y)
+
+        # add things to cache
+        self._cache_current = {'x': x}
+
+        return relu(x)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -201,7 +214,7 @@ class ReluLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        return np.where(self._cache_current['x'] > 0, 1, 0)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
