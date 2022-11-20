@@ -1,6 +1,6 @@
 import numpy as np
 import pickle
-import typing
+from functools import reduce  # check whether we can import this or not
 
 
 def xavier_init(size: tuple, gain: float = 1.0) -> np.ndarray:
@@ -105,8 +105,9 @@ class SigmoidLayer(Layer):
         """
         self._cache_current = None
 
+    @staticmethod
     def _sigmoid(y):
-            return 1/(1 + np.exp(-y))
+        return 1 / (1 + np.exp(-y))
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """ 
@@ -128,7 +129,7 @@ class SigmoidLayer(Layer):
         # add things to cache
         self._cache_current = {'x': x}
 
-        return _sigmoid(x)
+        return SigmoidLayer._sigmoid(x)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -151,7 +152,7 @@ class SigmoidLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        return _sigmoid(self._cache_current['x']) * (1 - _sigmoid(self._cache_current['x']))
+        return SigmoidLayer._sigmoid(self._cache_current['x']) * (1 - SigmoidLayer._sigmoid(self._cache_current['x']))
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -182,6 +183,7 @@ class ReluLayer(Layer):
         Returns:
             {np.ndarray} -- Output array of shape (batch_size, n_out)
         """
+
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
@@ -352,7 +354,15 @@ class MultiLayerNetwork(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        self._layers = None
+        dims = ([input_dim] + neurons)
+        self._layers = []
+        for i in range(len(neurons)):
+            self._layers.append(LinearLayer(dims[i], dims[i + 1]))
+            activation = activations[i]
+            if activation == 'sigmoid':
+                self._layers.append(SigmoidLayer())
+            else:
+                self._layers.append(ReluLayer())
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -371,7 +381,8 @@ class MultiLayerNetwork(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        return np.zeros((1, self.neurons[-1]))  # Replace with your own code
+
+        return reduce(lambda data, layer: layer.forward(data), self._layers, x)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -395,7 +406,7 @@ class MultiLayerNetwork(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        return reduce(lambda grad, layer: layer.backward(grad), reversed(self._layers), grad_z)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -412,7 +423,8 @@ class MultiLayerNetwork(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        for layer in self._layers:
+            layer.update_params(learning_rate)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
