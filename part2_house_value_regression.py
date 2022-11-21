@@ -6,6 +6,7 @@ from sklearn import preprocessing
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from sklearn.linear_model import LinearRegression
 
 class Network(nn.Module):
     def __init__(self,input_size,):
@@ -191,7 +192,10 @@ class Regressor():
         #######################################################################
 
         X, Y = self._preprocessor(x, y = y, training = False) # Do not forget
-        return 0 # Replace this code with your own
+        self.net.eval()
+        output = self.net(X).detach().numpy()
+        reg = LinearRegression().fit(output,y)
+        return reg.score(output,y) # Replace this code with your own
 
         #######################################################################
         #                       ** END OF YOUR CODE **
