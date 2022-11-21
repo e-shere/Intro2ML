@@ -10,13 +10,13 @@ class Network(nn.Module):
     def __init__(self,input_size,):
         super(Network, self).__init__()
         self.base = nn.Sequential(
-            nn.Linear(input_size,6),
+            nn.Linear(input_size,input_size),
             nn.ReLU(),
-            nn.Linear(6,5),        
+            nn.Linear(input_size,input_size),        
             nn.ReLU(),
-            nn.Linear(5,3),
+            nn.Linear(input_size,input_size),
             nn.ReLU(),
-            nn.Linear(3,1)
+            nn.Linear(input_size,1)
         )
     def forward(self, features):
         return self.base.forward(features)
@@ -85,17 +85,19 @@ class Regressor():
         values = {"longitude": 0, "latitude": 0, "housing_median_age": 0, "total_rooms": 0, "total_bedrooms": 0, "population": 0, "households": 0, "median_income": 0, "ocean_proximity": "INLAND"}
         x.fillna(value=values, inplace=True)
         x_col = x.iloc[:,:-1]
+        
         if training:
             if isinstance(y, pd.DataFrame):
                 self.y_fit.fit(y)
             self.x_fit.fit(x_col)
-
-        proximity = self.lb.fit_transform(x['ocean_proximity'])
+            proximity = self.lb.fit(x['ocean_proximity'])
+        
+        proximity = self.lb.transform(x['ocean_proximity'])
         x_col = self.x_fit.transform(x_col)
         frame_with_labels = np.concatenate((x_col,proximity),axis=1)
 
         #torch.set_printoptions(profile="full",linewidth=200)
-        x_tensor = torch.tensor(frame_with_labels.astype(np.float32))        
+        x_tensor = torch.tensor(frame_with_labels.astype(np.float32))    
         if isinstance(y, pd.DataFrame):
             y_col = self.y_fit.transform(y)
             y_tensor = torch.tensor(y_col.astype(np.float32))
@@ -159,8 +161,9 @@ class Regressor():
         #######################################################################
 
         X, _ = self._preprocessor(x, training = False) # Do not forget
-        
-        pass
+        self.net.eval()
+        output = self.net(X)
+        return self.y_fit.inverse_transform(output.detach().numpy())
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -257,10 +260,17 @@ def example_main():
     # This example trains on the whole available dataset. 
     # You probably want to separate some held-out data 
     # to make sure the model isn't overfitting
-    regressor = Regressor(x_train, nb_epoch = 10)
+    regressor = Regressor(x_train, nb_epoch = 100000)
     regressor.fit(x_train, y_train)
     save_regressor(regressor)
 
+    #Test
+    test_data = pd.read_csv("test.csv")
+    x_test = test_data.loc[:, data.columns != output_label]
+    out = regressor.predict(x_test)
+    y_test = data.loc[:, [output_label]]
+    print(out)
+    print(y_test)
     # Error
     error = regressor.score(x_train, y_train)
     print("\nRegressor error: {}\n".format(error))
