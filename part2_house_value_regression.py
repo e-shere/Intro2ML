@@ -127,8 +127,13 @@ class Regressor():
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        X, Y = self._preprocessor(x, y = y, training = True) # Do not forget
-        print(self.net(X))
+        X, target = self._preprocessor(x, y = y, training = True) # Do not forget
+        output = 0
+        for _ in range(self.nb_epoch):
+            input = self.net(X)
+            mse_loss = nn.MSELoss()
+            output = mse_loss(input, target)
+            output.backward()
         return self
 
         #######################################################################
