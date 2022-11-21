@@ -12,12 +12,13 @@ from sklearn.metrics import *
 class Network(nn.Module):
     def __init__(self,input_size,):
         super(Network, self).__init__()
+        inb = input_size * 10
         self.base = nn.Sequential(
-            nn.Linear(input_size,input_size),
+            nn.Linear(input_size,inb),
             nn.ReLU(),
-            nn.Linear(input_size,input_size),    
+            nn.Linear(inb,inb),    
             nn.ReLU(),
-            nn.Linear(input_size,1)
+            nn.Linear(inb,1)
         )
     def forward(self, features):
         return self.base.forward(features)
@@ -25,8 +26,8 @@ class Network(nn.Module):
 
 
 class Regressor():
-
-    def __init__(self, x, nb_epoch = 10, batch_size = 10):
+    
+    def __init__(self, x, nb_epoch = 100, batch_size = 10):
         # You can add any input parameters you need
         # Remember to set them with a default value for LabTS tests
         """ 
@@ -276,7 +277,7 @@ def example_main():
     # This example trains on the whole available dataset. 
     # You probably want to separate some held-out data 
     # to make sure the model isn't overfitting
-    regressor = Regressor(x_train, nb_epoch = 10)
+    regressor = Regressor(x_train)
     regressor.fit(x_train, y_train)
     save_regressor(regressor)
 
