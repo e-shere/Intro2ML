@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn import preprocessing
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 
 class Network(nn.Module):
     def __init__(self,input_size,):
@@ -50,7 +51,9 @@ class Regressor():
         
         X, _ = self._preprocessor(x, training = True)
         self.input_size = X.shape[1]
+        self.learning_rate = 0.001
         self.net = Network(self.input_size)  
+        self.optimizer = optim.Adam(self.net.parameters(), lr=self.learning_rate)
         self.output_size = 1
         self.nb_epoch = nb_epoch 
         return
@@ -96,7 +99,6 @@ class Regressor():
         x_col = self.x_fit.transform(x_col)
         frame_with_labels = np.concatenate((x_col,proximity),axis=1)
 
-        #torch.set_printoptions(profile="full",linewidth=200)
         x_tensor = torch.tensor(frame_with_labels.astype(np.float32))    
         if isinstance(y, pd.DataFrame):
             y_col = self.y_fit.transform(y)
@@ -130,12 +132,13 @@ class Regressor():
         #######################################################################
 
         X, target = self._preprocessor(x, y = y, training = True) # Do not forget
-        output = 0
         for _ in range(self.nb_epoch):
             input = self.net(X)
             mse_loss = nn.MSELoss()
-            output = mse_loss(input, target)
-            output.backward()
+            loss = mse_loss(input, target)
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
         return self
 
         #######################################################################
@@ -260,17 +263,17 @@ def example_main():
     # This example trains on the whole available dataset. 
     # You probably want to separate some held-out data 
     # to make sure the model isn't overfitting
-    regressor = Regressor(x_train, nb_epoch = 100000)
+    regressor = Regressor(x_train, nb_epoch = 10)
     regressor.fit(x_train, y_train)
     save_regressor(regressor)
 
     #Test
-    test_data = pd.read_csv("test.csv")
-    x_test = test_data.loc[:, data.columns != output_label]
-    out = regressor.predict(x_test)
-    y_test = data.loc[:, [output_label]]
-    print(out)
-    print(y_test)
+    # test_data = pd.read_csv("test.csv")
+    # x_test = test_data.loc[:, data.columns != output_label]
+    # out = regressor.predict(x_test)
+    # y_test = test_data.loc[:, [output_label]]
+    # print(out)
+    # print(y_test)
     # Error
     error = regressor.score(x_train, y_train)
     print("\nRegressor error: {}\n".format(error))
