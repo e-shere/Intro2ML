@@ -19,6 +19,8 @@ class Network(nn.Module):
             nn.ReLU(),
             nn.Linear(input_size,input_size),
             nn.ReLU(),
+            nn.Linear(input_size,input_size),
+            nn.ReLU(),
             nn.Linear(input_size,1)
         )
     def forward(self, features):
@@ -28,7 +30,7 @@ class Network(nn.Module):
 
 class Regressor():
 
-    def __init__(self, x, nb_epoch = 1000):
+    def __init__(self, x, nb_epoch = 10):
         # You can add any input parameters you need
         # Remember to set them with a default value for LabTS tests
         """ 
@@ -105,7 +107,7 @@ class Regressor():
         if isinstance(y, pd.DataFrame):
             y_col = self.y_fit.transform(y)
             y_tensor = torch.tensor(y_col.astype(np.float32))
-
+            
         # Replace this code with your own
         # Return preprocessed x and y, return None for y if it was None
         return x_tensor, (y_tensor if isinstance(y, pd.DataFrame) else None)
@@ -198,7 +200,7 @@ class Regressor():
         reg = LinearRegression().fit(self.y_fit.inverse_transform(output), self.y_fit.inverse_transform(Y))
         print(Y)
         print(output)
-        return reg.score(self.y_fit.inverse_transform(output), self.y_fit.inverse_transform(Y))
+        return explained_variance_score(Y, output)
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
