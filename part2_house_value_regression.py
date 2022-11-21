@@ -3,6 +3,25 @@ import pickle
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
+import torch.nn as nn
+import torch.nn.functional as F
+
+class Network(nn.Module):
+    def __init__(self,input_size,):
+        super(Network, self).__init__()
+        self.base = nn.Sequential(
+            nn.Linear(input_size,6),
+            nn.ReLU(),
+            nn.Linear(6,5),        
+            nn.ReLU(),
+            nn.Linear(5,3),
+            nn.ReLU(),
+            nn.Linear(3,1)
+        )
+    def forward(self, features):
+        return self.base.forward(features)
+
+
 
 class Regressor():
 
@@ -28,8 +47,10 @@ class Regressor():
         self.lb = preprocessing.LabelBinarizer()
         self.x_fit = preprocessing.StandardScaler()
         self.y_fit = preprocessing.StandardScaler()
+        
         X, _ = self._preprocessor(x, training = True)
         self.input_size = X.shape[1]
+        self.net = Network(self.input_size)  
         self.output_size = 1
         self.nb_epoch = nb_epoch 
         return
@@ -74,10 +95,10 @@ class Regressor():
         frame_with_labels = np.concatenate((x_col,proximity),axis=1)
 
         #torch.set_printoptions(profile="full",linewidth=200)
-        x_tensor = torch.tensor(frame_with_labels)        
+        x_tensor = torch.tensor(frame_with_labels.astype(np.float32))        
         if isinstance(y, pd.DataFrame):
             y_col = self.y_fit.transform(y)
-            y_tensor = torch.tensor(y_col)
+            y_tensor = torch.tensor(y_col.astype(np.float32))
 
         # Replace this code with your own
         # Return preprocessed x and y, return None for y if it was None
@@ -107,6 +128,7 @@ class Regressor():
         #######################################################################
 
         X, Y = self._preprocessor(x, y = y, training = True) # Do not forget
+        print(self.net(X))
         return self
 
         #######################################################################
@@ -132,6 +154,7 @@ class Regressor():
         #######################################################################
 
         X, _ = self._preprocessor(x, training = False) # Do not forget
+        
         pass
 
         #######################################################################
