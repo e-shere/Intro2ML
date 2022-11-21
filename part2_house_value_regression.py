@@ -62,11 +62,10 @@ class Regressor():
         #######################################################################
 
         values = {"longitude": 0, "latitude": 0, "housing_median_age": 0, "total_rooms": 0, "total_bedrooms": 0, "population": 0, "households": 0, "median_income": 0, "ocean_proximity": "INLAND"}
-        #x.fillna(value=values)
+        x.fillna(value=values)
         
         #prox = pd.DataFrame(proximity,columns=self.lb.classes_)
         x_col = x.iloc[:,:-1]
-        print(x_col)
         if training:
             if isinstance(y, pd.DataFrame):
                 self.y_fit.fit(y)
@@ -75,7 +74,6 @@ class Regressor():
         proximity = self.lb.fit_transform(x['ocean_proximity'])
         x_col = self.x_fit.transform(x_col)
         frame_with_labels = np.concatenate((x_col,proximity),axis=1)
-        print(frame_with_labels)
         x_tensor = torch.tensor(frame_with_labels)
         
         if isinstance(y, pd.DataFrame):
@@ -85,11 +83,6 @@ class Regressor():
         # Replace this code with your own
         # Return preprocessed x and y, return None for y if it was None
         return x_tensor, (y_tensor if isinstance(y, pd.DataFrame) else None)
-
-
-        # Replace this code with your own
-        # Return preprocessed x and y, return None for y if it was None
-        return x, (y if isinstance(y, pd.DataFrame) else None)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
