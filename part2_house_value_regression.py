@@ -21,6 +21,14 @@ class Network(nn.Module):
             nn.ReLU(),
             nn.Linear(input_size,input_size),
             nn.ReLU(),
+            nn.Linear(input_size,input_size),
+            nn.ReLU(),
+            nn.Linear(input_size,input_size),        
+            nn.ReLU(),
+            nn.Linear(input_size,input_size),
+            nn.ReLU(),
+            nn.Linear(input_size,input_size),
+            nn.ReLU(),
             nn.Linear(input_size,1)
         )
     def forward(self, features):
