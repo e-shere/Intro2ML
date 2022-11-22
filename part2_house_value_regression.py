@@ -15,7 +15,7 @@ class Network(nn.Module):
         self.base = nn.Sequential(
             nn.Linear(input_size,input_size),
             nn.ReLU(),
-            nn.Linear(input_size,input_size),        
+            nn.Linear(input_size,input_size),    
             nn.ReLU(),
             nn.Linear(input_size,input_size),
             nn.ReLU(),
@@ -202,13 +202,16 @@ class Regressor():
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        X, Y = self._preprocessor(x, y = y, training = False) # Do not forget
-        self.net.eval()
-        output = self.net(X).detach().numpy()
-        reg = LinearRegression().fit(self.y_fit.inverse_transform(output), self.y_fit.inverse_transform(Y))
-        print(Y)
-        print(output)
-        return explained_variance_score(Y, output)
+        # X, Y = self._preprocessor(x, y = y, training = False) # Do not forget
+        # self.net.eval()
+        # output = self.net(X).detach().numpy()
+        # #reg = LinearRegression().fit(self.y_fit.inverse_transform(output), self.y_fit.inverse_transform(Y))
+        # print(self.y_fit.inverse_transform(Y))
+        # print(self.y_fit.inverse_transform(output))
+        # print(mean_squared_error(Y, output))
+        # return mean_squared_error(self.y_fit.inverse_transform(Y), self.y_fit.inverse_transform(output), squared=False)
+        y_hat = self.predict(x)
+        return mean_squared_error(y, y_hat, squared=False)
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -279,7 +282,7 @@ def example_main():
     # This example trains on the whole available dataset. 
     # You probably want to separate some held-out data 
     # to make sure the model isn't overfitting
-    regressor = Regressor(x_train, nb_epoch = 10)
+    regressor = Regressor(x_train, nb_epoch = 1000)
     regressor.fit(x_train, y_train)
     save_regressor(regressor)
 
