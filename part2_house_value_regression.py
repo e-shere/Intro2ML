@@ -17,18 +17,6 @@ class Network(nn.Module):
             nn.ReLU(),
             nn.Linear(input_size,input_size),    
             nn.ReLU(),
-            nn.Linear(input_size,input_size),
-            nn.ReLU(),
-            nn.Linear(input_size,input_size),
-            nn.ReLU(),
-            nn.Linear(input_size,input_size),
-            nn.ReLU(),
-            nn.Linear(input_size,input_size),        
-            nn.ReLU(),
-            nn.Linear(input_size,input_size),
-            nn.ReLU(),
-            nn.Linear(input_size,input_size),
-            nn.ReLU(),
             nn.Linear(input_size,1)
         )
     def forward(self, features):
@@ -38,7 +26,7 @@ class Network(nn.Module):
 
 class Regressor():
 
-    def __init__(self, x, nb_epoch = 10):
+    def __init__(self, x, nb_epoch = 10, batch_size = 10):
         # You can add any input parameters you need
         # Remember to set them with a default value for LabTS tests
         """ 
@@ -68,6 +56,7 @@ class Regressor():
         self.optimizer = optim.Adam(self.net.parameters(), lr=self.learning_rate)
         self.output_size = 1
         self.nb_epoch = nb_epoch 
+        self.batch_size = batch_size
         return
 
         #######################################################################
@@ -144,13 +133,18 @@ class Regressor():
         #######################################################################
 
         X, target = self._preprocessor(x, y = y, training = True) # Do not forget
+
+        batch_number = int(len(X) / self.batch_size)    
+
         for _ in range(self.nb_epoch):
-            input = self.net(X)
-            mse_loss = nn.MSELoss()
-            loss = mse_loss(input, target)
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+            for batch in range(batch_number):
+                batch_X, batch_target = X[batch * self.batch_size : (batch + 1) * self.batch_size, ], target[batch * self.batch_size : (batch + 1) * self.batch_size, ]
+                input = self.net(batch_X)
+                mse_loss = nn.MSELoss()
+                loss = mse_loss(input, batch_target)
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
         return self
 
         #######################################################################
@@ -282,7 +276,7 @@ def example_main():
     # This example trains on the whole available dataset. 
     # You probably want to separate some held-out data 
     # to make sure the model isn't overfitting
-    regressor = Regressor(x_train, nb_epoch = 1000)
+    regressor = Regressor(x_train, nb_epoch = 10)
     regressor.fit(x_train, y_train)
     save_regressor(regressor)
 
