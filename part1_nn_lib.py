@@ -485,7 +485,7 @@ class Trainer(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        self._loss_layer = None
+        self._loss_layer = MSELossLayer() if loss_fun == "mse" else CrossEntropyLossLayer()
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -509,8 +509,8 @@ class Trainer(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
-
+        shuffled_indexes = np.random.permutation(len(input_dataset))
+        return input_dataset[shuffled_indexes], target_dataset[shuffled_indexes]
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -538,7 +538,22 @@ class Trainer(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        def create_minibatches(input_dataset, target_dataset):
+            pass
+            # num_batches = len(input_dataset) // batch_size
+            # np.split(input_dataset, num_batches)
+            # same with target and put together so each batch has (input, target) component
+        for i in range(self.nb_epoch):
+            if self.shuffle_flag:
+                input_dataset, target_dataset = self.shuffle(input_dataset, target_dataset)
+                #batches = create_minibatche()
+                # for (input_batch, output_batch) in batches;
+                    # output_batch = network.forward(input_batch)
+                    # loss = compute loss between output_batch and target_batch
+                    # grad_input = network.backward(loss?)
+                    # network.update_params(learning_rate)
+
+
 
         #######################################################################
         #                       ** END OF YOUR CODE **
