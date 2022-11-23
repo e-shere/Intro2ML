@@ -153,7 +153,8 @@ class SigmoidLayer(Layer):
         #                       ** START OF YOUR CODE **
         #######################################################################
         x = self._cache_current['x']
-        return SigmoidLayer._sigmoid(x) * (1 - SigmoidLayer._sigmoid(x))
+        s = SigmoidLayer._sigmoid(x)
+        return s * (1 - s) * grad_z
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -220,7 +221,7 @@ class ReluLayer(Layer):
         #                       ** START OF YOUR CODE **
         #######################################################################
         x = self._cache_current['x']
-        return np.where(x > 0, 1, 0)
+        return np.where(x > 0, 1, 0) * grad_z
 
         #######################################################################
         #                       ** END OF YOUR CODE **

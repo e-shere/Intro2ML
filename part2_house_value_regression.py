@@ -45,7 +45,6 @@ class Regressor():
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        # Replace this code with your own
         self.lb = preprocessing.LabelBinarizer()
         self.x_fit = preprocessing.StandardScaler()
         self.y_fit = preprocessing.StandardScaler()
