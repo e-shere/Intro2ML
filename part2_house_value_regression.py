@@ -256,16 +256,18 @@ def RegressorHyperParameterSearch(data, output_label):
     y_train = data.loc[:, [output_label]]
 
 
-    for epoch in range(1, 2):
-        for batch_size in range(1, 2):
-            for hidden_layers in range(1, 2):
-                for neurons in range(1, 2):
+    for epoch in range(1, 1000):
+        for batch_size in range(1, 1000):
+            for hidden_layers in range(1, 10):
+                for neurons in range(1, 10):
                     regressor = Regressor(x_train, epoch, batch_size, hidden_layers, neurons)
                     regressor.fit(x_train, y_train)
                     error = regressor.score(x_train, y_train)
                     f = open("scoring.txt", "a")
-                    f.write(f"epoch: {epoch}, batch_size: {batch_size}, hidden_layers: {hidden_layers}, neurons: {neurons}: error: {error}")
+                    f.write(f"epoch: {epoch}, batch_size: {batch_size}, hidden_layers: {hidden_layers}, neurons: {neurons}: error: {error} \n")
                     f.close()
+
+    
 
     return  # Return the chosen hyper parameters
 
@@ -285,28 +287,28 @@ def example_main():
     data = pd.read_csv("housing.csv") 
 
     # Splitting input and output
-    x_train = data.loc[:, data.columns != output_label]
-    y_train = data.loc[:, [output_label]]
+    # x_train = data.loc[:, data.columns != output_label]
+    # y_train = data.loc[:, [output_label]]
 
-    # Training
-    # This example trains on the whole available dataset. 
-    # You probably want to separate some held-out data 
-    # to make sure the model isn't overfitting
-    regressor = Regressor(x_train)
-    regressor.fit(x_train, y_train)
-    save_regressor(regressor)
+    # # Training
+    # # This example trains on the whole available dataset. 
+    # # You probably want to separate some held-out data 
+    # # to make sure the model isn't overfitting
+    # regressor = Regressor(x_train)
+    # regressor.fit(x_train, y_train)
+    # save_regressor(regressor)
 
-    #Test
-    # test_data = pd.read_csv("test.csv")
-    # x_test = test_data.loc[:, data.columns != output_label]
-    # out = regressor.predict(x_test)
-    # y_test = test_data.loc[:, [output_label]]
-    # print(out)
-    # print(y_test)
-    # Error
-    error = regressor.score(x_train, y_train)
-    print("\nRegressor error: {}\n".format(error))
-    #RegressorHyperParameterSearch(data, output_label)
+    # #Test
+    # # test_data = pd.read_csv("test.csv")
+    # # x_test = test_data.loc[:, data.columns != output_label]
+    # # out = regressor.predict(x_test)
+    # # y_test = test_data.loc[:, [output_label]]
+    # # print(out)
+    # # print(y_test)
+    # # Error
+    # error = regressor.score(x_train, y_train)
+    # print("\nRegressor error: {}\n".format(error))
+    RegressorHyperParameterSearch(data, output_label)
 
 if __name__ == "__main__":
     example_main()
