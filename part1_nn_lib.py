@@ -273,7 +273,7 @@ class LinearLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        z = np.add(np.matmul(self._W, x), self._b)
+        z = np.add(np.matmul(x, self._W), self._b)
 
         # add things to cache
         self._cache_current = {'x': x, 'W': self._W}
