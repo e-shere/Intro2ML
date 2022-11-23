@@ -538,20 +538,25 @@ class Trainer(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        def create_minibatches(input_dataset, target_dataset):
-            pass
-            # num_batches = len(input_dataset) // batch_size
-            # np.split(input_dataset, num_batches)
-            # same with target and put together so each batch has (input, target) component
+        def _create_mini_batches(input_dataset, target_dataset):
+            num_batches = len(input_dataset) // self.batch_size
+            input_batches = np.split(input_dataset, num_batches)
+            target_batches = np.spit(target_dataset)
+            return zip(input_batches, target_batches)
+
         for i in range(self.nb_epoch):
             if self.shuffle_flag:
                 input_dataset, target_dataset = self.shuffle(input_dataset, target_dataset)
-                #batches = create_minibatche()
-                # for (input_batch, output_batch) in batches;
-                    # output_batch = network.forward(input_batch)
-                    # loss = compute loss between output_batch and target_batch
-                    # grad_input = network.backward(loss?)
-                    # network.update_params(learning_rate)
+                batches = _create_mini_batches(input_dataset, target_dataset)
+                for batch in batches:
+                    input_batch, target_batch = batch
+                    output_batch = self.network.forward(input_batch)
+                    loss = self._loss_layer.forward(output_batch, target_batch)
+                    grad_loss = self._loss_layer.backward()
+                    grad_loss_wrt_inputs = self.network.backward(grad_loss)
+                    self.network.update_params(self.learning_rate)
+
+                    #this seems wrong i'm not using a bunch of things the functions return :/
 
 
 
