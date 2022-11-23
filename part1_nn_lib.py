@@ -50,7 +50,7 @@ class MSELossLayer(Layer):
 
     @staticmethod
     def _mse(y_pred, y_target):
-        return np.mean((y_pred - y_target) ** 2)
+        return np.mean((y_pred - y_target)**2)
 
     @staticmethod
     def _mse_grad(y_pred, y_target):
@@ -391,11 +391,7 @@ class MultiLayerNetwork(object):
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        return reduce(
-            lambda data, layer: layer.forward(data),
-            self._layers,
-            x
-            )
+        return reduce(lambda data, layer: layer.forward(data), self._layers, x)
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -418,11 +414,8 @@ class MultiLayerNetwork(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        return reduce(
-            lambda grad, layer: layer.backward(grad),
-            reversed(self._layers),
-            grad_z
-            )
+        return reduce(lambda grad, layer: layer.backward(grad),
+                      reversed(self._layers), grad_z)
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -469,13 +462,13 @@ class Trainer(object):
     """
 
     def __init__(
-            self,
-            network: MultiLayerNetwork,
-            batch_size: int,
-            nb_epoch: int,
-            learning_rate: float,
-            loss_fun: str,
-            shuffle_flag: bool,
+        self,
+        network: MultiLayerNetwork,
+        batch_size: int,
+        nb_epoch: int,
+        learning_rate: float,
+        loss_fun: str,
+        shuffle_flag: bool,
     ):
         """
         Constructor of the Trainer.
@@ -553,6 +546,7 @@ class Trainer(object):
             - target_dataset {np.ndarray} -- Array of corresponding targets, of
                 shape (#_training_data_points, #output_neurons).
         """
+
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
@@ -564,7 +558,8 @@ class Trainer(object):
 
         for i in range(self.nb_epoch):
             if self.shuffle_flag:
-                input_dataset, target_dataset = self.shuffle(input_dataset, target_dataset)
+                input_dataset, target_dataset = self.shuffle(
+                    input_dataset, target_dataset)
             batches = _create_mini_batches(input_dataset, target_dataset)
             for batch in batches:
                 input_batch, target_batch = batch
