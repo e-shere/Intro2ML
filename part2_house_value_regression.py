@@ -1,3 +1,4 @@
+import csv
 import torch
 import pickle
 import numpy as np
@@ -8,6 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import *
+from sklearn.model_selection import GridSearchCV
 
 
 class Network(nn.Module):
@@ -269,21 +271,20 @@ def RegressorHyperParameterSearch(data, output_label):
     x_train = data.loc[:, data.columns != output_label]
     y_train = data.loc[:, [output_label]]
 
-    for epoch in range(1, 1000):
-        for batch_size in range(1, 1000):
-            for hidden_layers in range(1, 10):
-                for neurons in range(1, 10):
-                    regressor = Regressor(x_train, epoch, batch_size,
-                                          hidden_layers, neurons)
-                    regressor.fit(x_train, y_train)
-                    error = regressor.score(x_train, y_train)
-                    f = open("scoring.txt", "a")
-                    f.write(
-                        f"epoch: {epoch}, batch_size: {batch_size}, hidden_layers: {hidden_layers}, neurons: {neurons}: error: {error} \n"
-                    )
-                    f.close()
+    param_grid = dict()
+    param_grid["epoch"] = [range(1, 1000)]
+    param_grid["batch_size"] = [range(1, 1000)]
+    param_grid["hidden_layers"] = [range(1, 10)]
+    param_grid["neurons"] = [range(1, 10)]
+    param_grid["learning_rate"] = [0.001]
 
-    return  # Return the chosen hyper parameters
+    # TODO: add cross validation
+    search = GridSearchCV(estimator=Regressor(),
+                          param_grid=param_grid,
+                          n_jobs=-1)
+
+    result = search.fit(x_train, y_train)
+    return result.best_params_
 
     #######################################################################
     #                       ** END OF YOUR CODE **
