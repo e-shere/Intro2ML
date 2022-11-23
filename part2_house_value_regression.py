@@ -122,8 +122,6 @@ class Regressor():
             y_col = self.y_fit.transform(y)
             y_tensor = torch.tensor(y_col.astype(np.float32))
 
-        # Replace this code with your own
-        # Return preprocessed x and y, return None for y if it was None
         return x_tensor, (y_tensor if isinstance(y, pd.DataFrame) else None)
 
         #######################################################################
@@ -148,17 +146,16 @@ class Regressor():
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        X, target = self._preprocessor(x, y=y, training=True)  # Do not forget
+        X, target = self._preprocessor(x, y=y, training=True)
 
         batch_number = int(len(X) / self.batch_size)
 
         for _ in range(self.nb_epoch):
             for batch in range(batch_number):
-                batch_X, batch_target = X[
-                    batch * self.batch_size:(batch + 1) *
-                    self.batch_size,], target[batch *
-                                              self.batch_size:(batch + 1) *
-                                              self.batch_size,]
+                batch_X = X[batch * self.batch_size:(batch + 1) *
+                            self.batch_size,]
+                batch_target = target[batch * self.batch_size:(batch + 1) *
+                                      self.batch_size,]
                 input = self.net(batch_X)
                 mse_loss = nn.MSELoss()
                 loss = mse_loss(input, batch_target)
@@ -188,7 +185,7 @@ class Regressor():
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        X, _ = self._preprocessor(x, training=False)  # Do not forget
+        X, _ = self._preprocessor(x, training=False)
         self.net.eval()
         output = self.net(X)
         return self.y_fit.inverse_transform(output.detach().numpy())
@@ -303,27 +300,27 @@ def example_main():
     data = pd.read_csv("housing.csv")
 
     # Splitting input and output
-    # x_train = data.loc[:, data.columns != output_label]
-    # y_train = data.loc[:, [output_label]]
+    x_train = data.loc[:, data.columns != output_label]
+    y_train = data.loc[:, [output_label]]
 
-    # # Training
-    # # This example trains on the whole available dataset.
-    # # You probably want to separate some held-out data
-    # # to make sure the model isn't overfitting
-    # regressor = Regressor(x_train)
-    # regressor.fit(x_train, y_train)
-    # save_regressor(regressor)
+    # Training
+    # This example trains on the whole available dataset.
+    # You probably want to separate some held-out data
+    # to make sure the model isn't overfitting
+    regressor = Regressor(x_train)
+    regressor.fit(x_train, y_train)
+    save_regressor(regressor)
 
-    # #Test
-    # # test_data = pd.read_csv("test.csv")
-    # # x_test = test_data.loc[:, data.columns != output_label]
-    # # out = regressor.predict(x_test)
-    # # y_test = test_data.loc[:, [output_label]]
-    # # print(out)
-    # # print(y_test)
-    # # Error
-    # error = regressor.score(x_train, y_train)
-    # print("\nRegressor error: {}\n".format(error))
+    #Test
+    test_data = pd.read_csv("test.csv")
+    x_test = test_data.loc[:, data.columns != output_label]
+    out = regressor.predict(x_test)
+    y_test = test_data.loc[:, [output_label]]
+    print(out)
+    print(y_test)
+    # Error
+    error = regressor.score(x_train, y_train)
+    print("\nRegressor error: {}\n".format(error))
     RegressorHyperParameterSearch(data, output_label)
 
 
