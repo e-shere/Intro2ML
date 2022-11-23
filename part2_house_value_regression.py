@@ -10,16 +10,16 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import *
 
 class Network(nn.Module):
-    def __init__(self,input_size,):
+    def __init__(self, input_size, hidden_layers, inb):
         super(Network, self).__init__()
-        inb = input_size * 10
-        self.base = nn.Sequential(
-            nn.Linear(input_size,inb),
-            nn.ReLU(),
-            nn.Linear(inb,inb),    
-            nn.ReLU(),
-            nn.Linear(inb,1)
-        )
+        layers = []
+        layers.append(nn.Linear(input_size, inb))
+        layers.append(nn.ReLU())
+        for i in range(hidden_layers):
+            layers.append(nn.Linear(inb, inb))
+            layers.append(nn.ReLU())
+        layers.append(nn.Linear(inb, 1))
+        self.base = nn.Sequential(*layers)
     def forward(self, features):
         return self.base.forward(features)
 
@@ -27,7 +27,7 @@ class Network(nn.Module):
 
 class Regressor():
     
-    def __init__(self, x, nb_epoch = 100, batch_size = 10):
+    def __init__(self, x, nb_epoch = 10, batch_size = 10, hidden_layers = 3, neurons = 13):
         # You can add any input parameters you need
         # Remember to set them with a default value for LabTS tests
         """ 
@@ -53,7 +53,7 @@ class Regressor():
         X, _ = self._preprocessor(x, training = True)
         self.input_size = X.shape[1]
         self.learning_rate = 0.001
-        self.net = Network(self.input_size)  
+        self.net = Network(self.input_size, hidden_layers, neurons)  
         self.optimizer = optim.Adam(self.net.parameters(), lr=self.learning_rate)
         self.output_size = 1
         self.nb_epoch = nb_epoch 
@@ -234,7 +234,7 @@ def load_regressor():
 
 
 
-def RegressorHyperParameterSearch(): 
+def RegressorHyperParameterSearch(data, output_label): 
     # Ensure to add whatever inputs you deem necessary to this function
     """
     Performs a hyper-parameter for fine-tuning the regressor implemented 
@@ -251,6 +251,21 @@ def RegressorHyperParameterSearch():
     #######################################################################
     #                       ** START OF YOUR CODE **
     #######################################################################
+
+    x_train = data.loc[:, data.columns != output_label]
+    y_train = data.loc[:, [output_label]]
+
+
+    for epoch in range(1, 2):
+        for batch_size in range(1, 2):
+            for hidden_layers in range(1, 2):
+                for neurons in range(1, 2):
+                    regressor = Regressor(x_train, epoch, batch_size, hidden_layers, neurons)
+                    regressor.fit(x_train, y_train)
+                    error = regressor.score(x_train, y_train)
+                    f = open("scoring.txt", "a")
+                    f.write(f"epoch: {epoch}, batch_size: {batch_size}, hidden_layers: {hidden_layers}, neurons: {neurons}: error: {error}")
+                    f.close()
 
     return  # Return the chosen hyper parameters
 
@@ -291,7 +306,7 @@ def example_main():
     # Error
     error = regressor.score(x_train, y_train)
     print("\nRegressor error: {}\n".format(error))
-
+    #RegressorHyperParameterSearch(data, output_label)
 
 if __name__ == "__main__":
     example_main()
