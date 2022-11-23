@@ -7,6 +7,7 @@ from sklearn import preprocessing
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import *
 from sklearn.model_selection import GridSearchCV
@@ -29,7 +30,7 @@ class Network(nn.Module):
         return self.base.forward(features)
 
 
-class Regressor():
+class Regressor(BaseEstimator):
 
     def __init__(self,
                  x,
@@ -58,14 +59,17 @@ class Regressor():
         self.y_fit = preprocessing.StandardScaler()
 
         X, _ = self._preprocessor(x, training=True)
+        self.x = x
         self.input_size = X.shape[1]
-        self.learning_rate = learning_rate
         self.net = Network(self.input_size, hidden_layers, neurons)
         self.optimizer = optim.Adam(self.net.parameters(),
-                                    lr=self.learning_rate)
+                                    lr=learning_rate)
         self.output_size = 1
         self.nb_epoch = nb_epoch
         self.batch_size = batch_size
+        self.hidden_layers = hidden_layers
+        self.neurons = neurons
+        self.learning_rate = learning_rate
         return
 
         #######################################################################
@@ -154,10 +158,8 @@ class Regressor():
 
         for _ in range(self.nb_epoch):
             for batch in range(batch_number):
-                batch_X = X[batch * self.batch_size:(batch + 1) *
-                            self.batch_size,]
-                batch_target = target[batch * self.batch_size:(batch + 1) *
-                                      self.batch_size,]
+                batch_X = X[batch * self.batch_size : (batch + 1) * self.batch_size,]
+                batch_target = target[batch * self.batch_size : (batch + 1) * self.batch_size,]
                 input = self.net(batch_X)
                 mse_loss = nn.MSELoss()
                 loss = mse_loss(input, batch_target)
@@ -213,15 +215,7 @@ class Regressor():
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-
-        # X, Y = self._preprocessor(x, y = y, training = False) # Do not forget
-        # self.net.eval()
-        # output = self.net(X).detach().numpy()
-        # #reg = LinearRegression().fit(self.y_fit.inverse_transform(output), self.y_fit.inverse_transform(Y))
-        # print(self.y_fit.inverse_transform(Y))
-        # print(self.y_fit.inverse_transform(output))
-        # print(mean_squared_error(Y, output))
-        # return mean_squared_error(self.y_fit.inverse_transform(Y), self.y_fit.inverse_transform(output), squared=False)
+        # Don't need to preprocess data here as it is done in predict()
         y_hat = self.predict(x)
         return mean_squared_error(y, y_hat, squared=False)
         #######################################################################
@@ -271,15 +265,16 @@ def RegressorHyperParameterSearch(data, output_label):
     x_train = data.loc[:, data.columns != output_label]
     y_train = data.loc[:, [output_label]]
 
-    param_grid = dict()
-    param_grid["epoch"] = [range(1, 1000)]
-    param_grid["batch_size"] = [range(1, 1000)]
-    param_grid["hidden_layers"] = [range(1, 10)]
-    param_grid["neurons"] = [range(1, 10)]
-    param_grid["learning_rate"] = [0.001]
+    param_grid = [{
+        "epoch": range(1, 1000),
+        "batch_size": range(1, 1000),
+        "hidden_layers": range(1, 10),
+        "neurons": range(1, 10),
+        "learning_rate": [0.001]
+        }]
 
     # TODO: add cross validation
-    search = GridSearchCV(estimator=Regressor(),
+    search = GridSearchCV(estimator=Regressor(x_train),
                           param_grid=param_grid,
                           n_jobs=-1)
 
