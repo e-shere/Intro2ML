@@ -152,7 +152,8 @@ class SigmoidLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        return SigmoidLayer._sigmoid(self._cache_current['x']) * (1 - SigmoidLayer._sigmoid(self._cache_current['x']))
+        x = self._cache_current['x']
+        return SigmoidLayer._sigmoid(x) * (1 - SigmoidLayer._sigmoid(x))
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -169,6 +170,10 @@ class ReluLayer(Layer):
         Constructor of the Relu layer.
         """
         self._cache_current = None
+
+    @staticmethod
+    def _relu(y):
+        return np.maximum(0, y)
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """ 
@@ -187,13 +192,11 @@ class ReluLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        def relu(y):
-            return np.maximum(0, y)
 
         # add things to cache
         self._cache_current = {'x': x}
 
-        return relu(x)
+        return ReluLayer._relu(x)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -216,7 +219,8 @@ class ReluLayer(Layer):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        return np.where(self._cache_current['x'] > 0, 1, 0)
+        x = self._cache_current['x']
+        return np.where(x > 0, 1, 0)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -243,7 +247,7 @@ class LinearLayer(Layer):
         #                       ** START OF YOUR CODE **
         #######################################################################
         self._W = xavier_init((n_in, n_out))
-        self._b = np.zeros(n_out)  # doesn't shape of this need to be (batch_size, n_out)?
+        self._b = np.zeros(n_out)
 
         self._cache_current = None
         self._grad_W_current = None
@@ -272,7 +276,7 @@ class LinearLayer(Layer):
         z = np.add(np.matmul(self._W, x), self._b)
 
         # add things to cache
-        self._cache_current = {'x': x}
+        self._cache_current = {'x': x, 'W': self._W}
 
         return z
 
@@ -298,11 +302,13 @@ class LinearLayer(Layer):
         #                       ** START OF YOUR CODE **
         #######################################################################
         x = self._cache_current['x']
+        W = self._cache_current['W']
         batch_size, n_out = grad_z.shape
         self._grad_W_current = np.matmul(x.T, grad_z)
         self._grad_b_current = np.matmul(np.ones(batch_size).T, grad_z)
+        # can use np.sum(grad_z, axis=0) check if axis=0 or 1
 
-        return np.matmul(grad_z, self._W.T)  # i think i should be using cached values but i dont get why
+        return np.matmul(grad_z, W.T)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -354,15 +360,18 @@ class MultiLayerNetwork(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        dims = ([input_dim] + neurons)
         self._layers = []
+
+        n_in = input_dim
         for i in range(len(neurons)):
-            self._layers.append(LinearLayer(dims[i], dims[i + 1]))
+            n_out = neurons[i]
+            self._layers.append(LinearLayer(n_in, n_out))
             activation = activations[i]
             if activation == 'sigmoid':
                 self._layers.append(SigmoidLayer())
-            else:
+            elif activation == 'relu':
                 self._layers.append(ReluLayer())
+            n_in = n_out
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -382,8 +391,11 @@ class MultiLayerNetwork(object):
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        return reduce(lambda data, layer: layer.forward(data), self._layers, x)
-
+        return reduce(
+            lambda data, layer: layer.forward(data),
+            self._layers,
+            x
+            )
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -406,8 +418,11 @@ class MultiLayerNetwork(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        return reduce(lambda grad, layer: layer.backward(grad), reversed(self._layers), grad_z)
-
+        return reduce(
+            lambda grad, layer: layer.backward(grad),
+            reversed(self._layers),
+            grad_z
+            )
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -485,7 +500,10 @@ class Trainer(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        self._loss_layer = MSELossLayer() if loss_fun == "mse" else CrossEntropyLossLayer()
+        if loss_fun == "mse":
+            self._loss_layer = MSELossLayer()
+        elif loss_fun == "cross_entropy":
+            self._loss_layer = CrossEntropyLossLayer()
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -540,25 +558,21 @@ class Trainer(object):
         #######################################################################
         def _create_mini_batches(input_dataset, target_dataset):
             num_batches = len(input_dataset) // self.batch_size
-            input_batches = np.split(input_dataset, num_batches)
-            target_batches = np.spit(target_dataset)
+            input_batches = np.array_split(input_dataset, num_batches)
+            target_batches = np.array_split(target_dataset, num_batches)
             return zip(input_batches, target_batches)
 
         for i in range(self.nb_epoch):
             if self.shuffle_flag:
                 input_dataset, target_dataset = self.shuffle(input_dataset, target_dataset)
-                batches = _create_mini_batches(input_dataset, target_dataset)
-                for batch in batches:
-                    input_batch, target_batch = batch
-                    output_batch = self.network.forward(input_batch)
-                    loss = self._loss_layer.forward(output_batch, target_batch)
-                    grad_loss = self._loss_layer.backward()
-                    grad_loss_wrt_inputs = self.network.backward(grad_loss)
-                    self.network.update_params(self.learning_rate)
-
-                    #this seems wrong i'm not using a bunch of things the functions return :/
-
-
+            batches = _create_mini_batches(input_dataset, target_dataset)
+            for batch in batches:
+                input_batch, target_batch = batch
+                output_batch = self.network(input_batch)
+                loss = self._loss_layer.forward(output_batch, target_batch)
+                grad_loss = self._loss_layer.backward()
+                grad_loss_wrt_inputs = self.network.backward(grad_loss)
+                self.network.update_params(self.learning_rate)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
@@ -582,7 +596,8 @@ class Trainer(object):
         #######################################################################
         #                       ** START OF YOUR CODE **
         #######################################################################
-        pass
+        output = self.network(input_dataset)
+        return self._loss_layer.forward(output, target_dataset)
 
         #######################################################################
         #                       ** END OF YOUR CODE **
