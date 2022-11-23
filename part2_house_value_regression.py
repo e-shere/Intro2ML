@@ -9,7 +9,9 @@ import torch.optim as optim
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import *
 
+
 class Network(nn.Module):
+
     def __init__(self, input_size, hidden_layers, inb):
         super(Network, self).__init__()
         layers = []
@@ -20,16 +22,20 @@ class Network(nn.Module):
             layers.append(nn.ReLU())
         layers.append(nn.Linear(inb, 1))
         self.base = nn.Sequential(*layers)
+
     def forward(self, features):
         return self.base.forward(features)
 
 
-
 class Regressor():
-    
-    def __init__(self, x, nb_epoch = 10, batch_size = 10, hidden_layers = 3, neurons = 13):
-        # You can add any input parameters you need
-        # Remember to set them with a default value for LabTS tests
+
+    def __init__(self,
+                 x,
+                 nb_epoch=10,
+                 batch_size=10,
+                 hidden_layers=3,
+                 neurons=13,
+                 learning_rate=0.001):
         """ 
         Initialise the model.
           
@@ -48,14 +54,15 @@ class Regressor():
         self.lb = preprocessing.LabelBinarizer()
         self.x_fit = preprocessing.StandardScaler()
         self.y_fit = preprocessing.StandardScaler()
-        
-        X, _ = self._preprocessor(x, training = True)
+
+        X, _ = self._preprocessor(x, training=True)
         self.input_size = X.shape[1]
-        self.learning_rate = 0.001
-        self.net = Network(self.input_size, hidden_layers, neurons)  
-        self.optimizer = optim.Adam(self.net.parameters(), lr=self.learning_rate)
+        self.learning_rate = learning_rate
+        self.net = Network(self.input_size, hidden_layers, neurons)
+        self.optimizer = optim.Adam(self.net.parameters(),
+                                    lr=self.learning_rate)
         self.output_size = 1
-        self.nb_epoch = nb_epoch 
+        self.nb_epoch = nb_epoch
         self.batch_size = batch_size
         return
 
@@ -63,7 +70,7 @@ class Regressor():
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-    def _preprocessor(self, x, y = None, training = False):
+    def _preprocessor(self, x, y=None, training=False):
         """ 
         Preprocess input of the network.
           
@@ -86,25 +93,35 @@ class Regressor():
         #                       ** START OF YOUR CODE **
         #######################################################################
         x = x.copy()
-        values = {"longitude": 0, "latitude": 0, "housing_median_age": 0, "total_rooms": 0, "total_bedrooms": 0, "population": 0, "households": 0, "median_income": 0, "ocean_proximity": "INLAND"}
+        values = {
+            "longitude": 0,
+            "latitude": 0,
+            "housing_median_age": 0,
+            "total_rooms": 0,
+            "total_bedrooms": 0,
+            "population": 0,
+            "households": 0,
+            "median_income": 0,
+            "ocean_proximity": "INLAND"
+        }
         x.fillna(value=values, inplace=True)
-        x_col = x.iloc[:,:-1]
-        
+        x_col = x.iloc[:, :-1]
+
         if training:
             if isinstance(y, pd.DataFrame):
                 self.y_fit.fit(y)
             self.x_fit.fit(x_col)
             proximity = self.lb.fit(x['ocean_proximity'])
-        
+
         proximity = self.lb.transform(x['ocean_proximity'])
         x_col = self.x_fit.transform(x_col)
-        frame_with_labels = np.concatenate((x_col,proximity),axis=1)
+        frame_with_labels = np.concatenate((x_col, proximity), axis=1)
 
-        x_tensor = torch.tensor(frame_with_labels.astype(np.float32))    
+        x_tensor = torch.tensor(frame_with_labels.astype(np.float32))
         if isinstance(y, pd.DataFrame):
             y_col = self.y_fit.transform(y)
             y_tensor = torch.tensor(y_col.astype(np.float32))
-            
+
         # Replace this code with your own
         # Return preprocessed x and y, return None for y if it was None
         return x_tensor, (y_tensor if isinstance(y, pd.DataFrame) else None)
@@ -113,7 +130,6 @@ class Regressor():
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-        
     def fit(self, x, y):
         """
         Regressor training function
@@ -132,13 +148,17 @@ class Regressor():
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        X, target = self._preprocessor(x, y = y, training = True) # Do not forget
+        X, target = self._preprocessor(x, y=y, training=True)  # Do not forget
 
-        batch_number = int(len(X) / self.batch_size)    
+        batch_number = int(len(X) / self.batch_size)
 
         for _ in range(self.nb_epoch):
             for batch in range(batch_number):
-                batch_X, batch_target = X[batch * self.batch_size : (batch + 1) * self.batch_size, ], target[batch * self.batch_size : (batch + 1) * self.batch_size, ]
+                batch_X, batch_target = X[
+                    batch * self.batch_size:(batch + 1) *
+                    self.batch_size,], target[batch *
+                                              self.batch_size:(batch + 1) *
+                                              self.batch_size,]
                 input = self.net(batch_X)
                 mse_loss = nn.MSELoss()
                 loss = mse_loss(input, batch_target)
@@ -151,7 +171,6 @@ class Regressor():
         #                       ** END OF YOUR CODE **
         #######################################################################
 
-            
     def predict(self, x):
         """
         Output the value corresponding to an input x.
@@ -169,7 +188,7 @@ class Regressor():
         #                       ** START OF YOUR CODE **
         #######################################################################
 
-        X, _ = self._preprocessor(x, training = False) # Do not forget
+        X, _ = self._preprocessor(x, training=False)  # Do not forget
         self.net.eval()
         output = self.net(X)
         return self.y_fit.inverse_transform(output.detach().numpy())
@@ -211,7 +230,7 @@ class Regressor():
         #######################################################################
 
 
-def save_regressor(trained_model): 
+def save_regressor(trained_model):
     """ 
     Utility function to save the trained regressor model in part2_model.pickle.
     """
@@ -221,7 +240,7 @@ def save_regressor(trained_model):
     print("\nSaved model in part2_model.pickle\n")
 
 
-def load_regressor(): 
+def load_regressor():
     """ 
     Utility function to load the trained regressor model in part2_model.pickle.
     """
@@ -232,8 +251,7 @@ def load_regressor():
     return trained_model
 
 
-
-def RegressorHyperParameterSearch(data, output_label): 
+def RegressorHyperParameterSearch(data, output_label):
     # Ensure to add whatever inputs you deem necessary to this function
     """
     Performs a hyper-parameter for fine-tuning the regressor implemented 
@@ -254,26 +272,25 @@ def RegressorHyperParameterSearch(data, output_label):
     x_train = data.loc[:, data.columns != output_label]
     y_train = data.loc[:, [output_label]]
 
-
     for epoch in range(1, 1000):
         for batch_size in range(1, 1000):
             for hidden_layers in range(1, 10):
                 for neurons in range(1, 10):
-                    regressor = Regressor(x_train, epoch, batch_size, hidden_layers, neurons)
+                    regressor = Regressor(x_train, epoch, batch_size,
+                                          hidden_layers, neurons)
                     regressor.fit(x_train, y_train)
                     error = regressor.score(x_train, y_train)
                     f = open("scoring.txt", "a")
-                    f.write(f"epoch: {epoch}, batch_size: {batch_size}, hidden_layers: {hidden_layers}, neurons: {neurons}: error: {error} \n")
+                    f.write(
+                        f"epoch: {epoch}, batch_size: {batch_size}, hidden_layers: {hidden_layers}, neurons: {neurons}: error: {error} \n"
+                    )
                     f.close()
-
-    
 
     return  # Return the chosen hyper parameters
 
     #######################################################################
     #                       ** END OF YOUR CODE **
     #######################################################################
-
 
 
 def example_main():
@@ -283,15 +300,15 @@ def example_main():
     # Use pandas to read CSV data as it contains various object types
     # Feel free to use another CSV reader tool
     # But remember that LabTS tests take Pandas DataFrame as inputs
-    data = pd.read_csv("housing.csv") 
+    data = pd.read_csv("housing.csv")
 
     # Splitting input and output
     # x_train = data.loc[:, data.columns != output_label]
     # y_train = data.loc[:, [output_label]]
 
     # # Training
-    # # This example trains on the whole available dataset. 
-    # # You probably want to separate some held-out data 
+    # # This example trains on the whole available dataset.
+    # # You probably want to separate some held-out data
     # # to make sure the model isn't overfitting
     # regressor = Regressor(x_train)
     # regressor.fit(x_train, y_train)
@@ -309,6 +326,6 @@ def example_main():
     # print("\nRegressor error: {}\n".format(error))
     RegressorHyperParameterSearch(data, output_label)
 
+
 if __name__ == "__main__":
     example_main()
-
