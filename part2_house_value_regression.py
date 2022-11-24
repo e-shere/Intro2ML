@@ -100,16 +100,17 @@ class Regressor(BaseEstimator):
         #######################################################################
         x = x.copy()
         values = {
-            "longitude": 0,
-            "latitude": 0,
-            "housing_median_age": 0,
-            "total_rooms": 0,
-            "total_bedrooms": 0,
-            "population": 0,
-            "households": 0,
-            "median_income": 0,
-            "ocean_proximity": "INLAND"
+            "longitude": x["longitude"].mean(),
+            "latitude": x["latitude"].mean(),
+            "housing_median_age": x["housing_median_age"].mean(),
+            "total_rooms": x["total_rooms"].mean(),
+            "total_bedrooms": x["total_bedrooms"].mean(),
+            "population": x["population"].mean(),
+            "households": x["households"].mean(),
+            "median_income": x["median_income"].mean(),
+            "ocean_proximity": x["ocean_proximity"].mode(),
         }
+
         x.fillna(value=values, inplace=True)
         x_col = x.iloc[:, :-1]
 
@@ -305,22 +306,22 @@ def example_main():
     # This example trains on the whole available dataset.
     # You probably want to separate some held-out data
     # to make sure the model isn't overfitting
-    # regressor = Regressor(x_train)
-    # regressor.fit(x_train, y_train)
-    # save_regressor(regressor)
+    regressor = Regressor(x_train)
+    regressor.fit(x_train, y_train)
+    save_regressor(regressor)
 
     #Test
-    # test_data = pd.read_csv("test.csv")
-    # x_test = test_data.loc[:, data.columns != output_label]
-    # out = regressor.predict(x_test)
-    # y_test = test_data.loc[:, [output_label]]
-    # print(out)
-    # print(y_test)
-    # # Error
-    # error = regressor.score(x_train, y_train)
-    # print("\nRegressor error: {}\n".format(error))
-    with open("hi.txt","a") as f:
-        f.write(str(RegressorHyperParameterSearch(data, output_label)))
+    test_data = pd.read_csv("test.csv")
+    x_test = test_data.loc[:, data.columns != output_label]
+    out = regressor.predict(x_test)
+    y_test = test_data.loc[:, [output_label]]
+    print(out)
+    print(y_test)
+    # Error
+    error = regressor.score(x_train, y_train)
+    print("\nRegressor error: {}\n".format(error))
+    # with open("hi.txt","a") as f:
+    #     f.write(str(RegressorHyperParameterSearch(data, output_label)))
         
 if __name__ == "__main__":
     example_main()
