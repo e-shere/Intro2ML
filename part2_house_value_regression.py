@@ -268,9 +268,9 @@ def RegressorHyperParameterSearch(data, output_label):
 
     param_grid = [{
         "nb_epoch": [1000],
-        "batch_size": [5000],
+        "batch_size": range(50, 200, 10),
         "hidden_layers": range(5, 20, 2),
-        "neurons": [2**i for i in range(9)],
+        "neurons": range(1, 150, 5),
         "learning_rate": [0.001,0.01,0.1]
         }]
 
@@ -302,6 +302,8 @@ def example_main():
     # Splitting input and output
     x_train = data.loc[:, data.columns != output_label]
     y_train = data.loc[:, [output_label]]
+
+    x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.1)
     # Training
     # This example trains on the whole available dataset.
     # You probably want to separate some held-out data
@@ -310,18 +312,9 @@ def example_main():
     regressor.fit(x_train, y_train)
     save_regressor(regressor)
 
-    #Test
-    test_data = pd.read_csv("test.csv")
-    x_test = test_data.loc[:, data.columns != output_label]
-    out = regressor.predict(x_test)
-    y_test = test_data.loc[:, [output_label]]
-    print(out)
-    print(y_test)
     # Error
-    error = regressor.score(x_train, y_train)
+    error = regressor.score(x_test, y_test)
     print("\nRegressor error: {}\n".format(error))
-    # with open("hi.txt","a") as f:
-    #     f.write(str(RegressorHyperParameterSearch(data, output_label)))
         
 if __name__ == "__main__":
     example_main()
