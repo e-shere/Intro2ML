@@ -245,7 +245,7 @@ def load_regressor():
     return trained_model
 
 
-def RegressorHyperParameterSearch(data, output_label):
+def RegressorHyperParameterSearch(x_train, y_train):
     # Ensure to add whatever inputs you deem necessary to this function
     """
     Performs a hyper-parameter for fine-tuning the regressor implemented 
@@ -262,9 +262,6 @@ def RegressorHyperParameterSearch(data, output_label):
     #######################################################################
     #                       ** START OF YOUR CODE **
     #######################################################################
-
-    x_train = data.loc[:, data.columns != output_label]
-    y_train = data.loc[:, [output_label]]
 
     param_grid = [{
         "nb_epoch": [1000],
@@ -308,7 +305,8 @@ def example_main():
     # This example trains on the whole available dataset.
     # You probably want to separate some held-out data
     # to make sure the model isn't overfitting
-    regressor = Regressor(x_train)
+    best_params = RegressorHyperParameterSearch(x_train, y_train)
+    regressor = Regressor(x, *best_params)
     regressor.fit(x_train, y_train)
     save_regressor(regressor)
 
