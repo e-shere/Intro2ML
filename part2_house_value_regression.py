@@ -10,7 +10,7 @@ import torch.optim as optim
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import *
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import *
 
 
 class Network(nn.Module):
@@ -217,7 +217,7 @@ class Regressor(BaseEstimator):
         #######################################################################
         # Don't need to preprocess data here as it is done in predict()
         y_hat = self.predict(x)
-        return mean_squared_error(y, y_hat, squared=False)
+        return -mean_squared_error(y, y_hat, squared=False)
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -266,19 +266,19 @@ def RegressorHyperParameterSearch(data, output_label):
     y_train = data.loc[:, [output_label]]
 
     param_grid = [{
-        "nb_epoch": [5000],
-        "batch_size": range(5000),
-        "hidden_layers": range(5, 20),
+        "nb_epoch": [1000],
+        "batch_size": [5000],
+        "hidden_layers": range(5, 20, 2),
         "neurons": [2**i for i in range(9)],
-        "learning_rate": [0.001]
+        "learning_rate": [0.001,0.01,0.1]
         }]
 
     # TODO: add cross validation
-    search = GridSearchCV(estimator=Regressor(x_train),
-                          param_grid=param_grid,
+    search = RandomizedSearchCV(estimator=Regressor(x_train),
+                          param_distributions=param_grid,
                           n_jobs=-1,
                           verbose=4,
-                          cv=2)
+                          cv=3)
 
     result = search.fit(x_train, y_train)
     return result.best_params_
@@ -300,7 +300,6 @@ def example_main():
     # Splitting input and output
     x_train = data.loc[:, data.columns != output_label]
     y_train = data.loc[:, [output_label]]
-
     # Training
     # This example trains on the whole available dataset.
     # You probably want to separate some held-out data
