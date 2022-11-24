@@ -1,0 +1,1 @@
+{'neurons': 128, 'nb_epoch': 1000, 'learning_rate': 0.01, 'hidden_layers': 13, 'batch_size': 5000}{'neurons': 256, 'nb_epoch': 1000, 'learning_rate': 0.1, 'hidden_layers': 5, 'batch_size': 5000}
