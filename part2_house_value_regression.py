@@ -266,17 +266,19 @@ def RegressorHyperParameterSearch(data, output_label):
     y_train = data.loc[:, [output_label]]
 
     param_grid = [{
-        "epoch": range(1, 1000),
-        "batch_size": range(1, 1000),
-        "hidden_layers": range(1, 10),
-        "neurons": range(1, 10),
+        "nb_epoch": [5000],
+        "batch_size": range(5000),
+        "hidden_layers": range(5, 20),
+        "neurons": [2**i for i in range(9)],
         "learning_rate": [0.001]
         }]
 
     # TODO: add cross validation
     search = GridSearchCV(estimator=Regressor(x_train),
                           param_grid=param_grid,
-                          n_jobs=-1)
+                          n_jobs=-1,
+                          verbose=4,
+                          cv=2)
 
     result = search.fit(x_train, y_train)
     return result.best_params_
@@ -303,22 +305,22 @@ def example_main():
     # This example trains on the whole available dataset.
     # You probably want to separate some held-out data
     # to make sure the model isn't overfitting
-    regressor = Regressor(x_train)
-    regressor.fit(x_train, y_train)
-    save_regressor(regressor)
+    # regressor = Regressor(x_train)
+    # regressor.fit(x_train, y_train)
+    # save_regressor(regressor)
 
     #Test
-    test_data = pd.read_csv("test.csv")
-    x_test = test_data.loc[:, data.columns != output_label]
-    out = regressor.predict(x_test)
-    y_test = test_data.loc[:, [output_label]]
-    print(out)
-    print(y_test)
-    # Error
-    error = regressor.score(x_train, y_train)
-    print("\nRegressor error: {}\n".format(error))
-    RegressorHyperParameterSearch(data, output_label)
-
-
+    # test_data = pd.read_csv("test.csv")
+    # x_test = test_data.loc[:, data.columns != output_label]
+    # out = regressor.predict(x_test)
+    # y_test = test_data.loc[:, [output_label]]
+    # print(out)
+    # print(y_test)
+    # # Error
+    # error = regressor.score(x_train, y_train)
+    # print("\nRegressor error: {}\n".format(error))
+    with open("hi.txt","a") as f:
+        f.write(str(RegressorHyperParameterSearch(data, output_label)))
+        
 if __name__ == "__main__":
     example_main()
