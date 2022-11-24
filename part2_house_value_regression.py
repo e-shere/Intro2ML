@@ -217,7 +217,7 @@ class Regressor(BaseEstimator):
         #######################################################################
         # Don't need to preprocess data here as it is done in predict()
         y_hat = self.predict(x)
-        return -mean_squared_error(y, y_hat, squared=False)
+        return mean_squared_error(y, y_hat, squared=False)
         #######################################################################
         #                       ** END OF YOUR CODE **
         #######################################################################
@@ -278,7 +278,8 @@ def RegressorHyperParameterSearch(data, output_label):
                           param_distributions=param_grid,
                           n_jobs=-1,
                           verbose=4,
-                          cv=3)
+                          cv=3,
+                          scoring="neg_root_mean_squared_error")
 
     result = search.fit(x_train, y_train)
     return result.best_params_
