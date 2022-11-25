@@ -264,9 +264,9 @@ def RegressorHyperParameterSearch(x_train, y_train):
     #######################################################################
 
     param_grid = [{
-        "nb_epoch": [1000],
-        "batch_size": range(50, 200, 10),
-        "hidden_layers": range(5, 20, 2),
+        "nb_epoch": [5000],
+        "batch_size": [500],
+        "hidden_layers": range(1, 20, 2),
         "neurons": range(1, 150, 5),
         "learning_rate": [0.001,0.01,0.1]
         }]
@@ -280,6 +280,7 @@ def RegressorHyperParameterSearch(x_train, y_train):
                           scoring="neg_root_mean_squared_error")
 
     result = search.fit(x_train, y_train)
+    print("Best parameters: " + str(result.best_params_))
     return result.best_params_
 
     #######################################################################
@@ -306,7 +307,7 @@ def example_main():
     # You probably want to separate some held-out data
     # to make sure the model isn't overfitting
     best_params = RegressorHyperParameterSearch(x_train, y_train)
-    regressor = Regressor(x, *best_params)
+    regressor = Regressor(x_train, **best_params)
     regressor.fit(x_train, y_train)
     save_regressor(regressor)
 

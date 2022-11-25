@@ -1,0 +1,62 @@
+[CV 1/3] END batch_size=500, hidden_layers=3, learning_rate=0.001, nb_epoch=5000, neurons=146;, score=-53023.│]
+880 total time= 3.2min                                                                                       │]
+[CV 3/3] END batch_size=500, hidden_layers=3, learning_rate=0.001, nb_epoch=5000, neurons=146;, score=-54830.│]
+890 total time= 3.2min                                                                                       │]
+[CV 1/3] END batch_size=500, hidden_layers=7, learning_rate=0.01, nb_epoch=5000, neurons=61;, score=-54553.37│]
+1 total time= 3.2min                                                                                         │]
+[CV 2/3] END batch_size=500, hidden_layers=5, learning_rate=0.1, nb_epoch=5000, neurons=101;, score=-55371.77│]
+9 total time= 3.2min                                                                                         │]
+[CV 1/3] END batch_size=500, hidden_layers=5, learning_rate=0.1, nb_epoch=5000, neurons=101;, score=-54271.51│]
+3 total time= 3.2min                                                                                      │2
+[CV 2/3] END batch_size=500, hidden_layers=3, learning_rate=0.001, nb_epoch=5000, neurons=146;, score=-56555.│M
+459 total time= 3.3min                                                                                       │e
+[CV 3/3] END batch_size=500, hidden_layers=5, learning_rate=0.1, nb_epoch=5000, neurons=101;, score=-54806.04│m
+0 total time= 3.3min                                                                                         │M
+[CV 2/3] END batch_size=500, hidden_layers=7, learning_rate=0.01, nb_epoch=5000, neurons=61;, score=-55067.71│$
+3 total time= 3.4min                                                                                         │5
+[CV 2/3] END batch_size=500, hidden_layers=15, learning_rate=0.001, nb_epoch=5000, neurons=76;, score=-55250.│2
+096 total time= 4.4min                                                                                       │]
+[CV 3/3] END batch_size=500, hidden_layers=7, learning_rate=0.01, nb_epoch=5000, neurons=61;, score=-53429.42│]
+1 total time= 4.4min                                                                                         │]
+[CV 1/3] END batch_size=500, hidden_layers=15, learning_rate=0.001, nb_epoch=5000, neurons=76;, score=-55024.│]
+618 total time= 4.4min                                                                                       │]
+[CV 2/3] END batch_size=500, hidden_layers=13, learning_rate=0.1, nb_epoch=5000, neurons=61;, score=-55136.25│]
+3 total time= 4.4min                                                                                         │]
+[CV 3/3] END batch_size=500, hidden_layers=13, learning_rate=0.1, nb_epoch=5000, neurons=61;, score=-54915.85│]
+9 total time= 4.4min                                                                                         │]
+[CV 1/3] END batch_size=500, hidden_layers=13, learning_rate=0.1, nb_epoch=5000, neurons=61;, score=-53707.20│]
+0 total time= 4.5min                                                                                         │]
+[CV 3/3] END batch_size=500, hidden_layers=15, learning_rate=0.001, nb_epoch=5000, neurons=76;, score=-54237.│]
+932 total time= 4.5min                                                                                       │]
+[CV 1/3] END batch_size=500, hidden_layers=5, learning_rate=0.001, nb_epoch=5000, neurons=66;, score=-54129.9│]
+91 total time= 4.4min                                                                                        │]
+[CV 2/3] END batch_size=500, hidden_layers=5, learning_rate=0.001, nb_epoch=5000, neurons=66;, score=-57531.5│]
+52 total time= 4.3min                                                                                        │]
+[CV 3/3] END batch_size=500, hidden_layers=5, learning_rate=0.001, nb_epoch=5000, neurons=66;, score=-53532.0│]
+03 total time= 4.4min                                                                                        │]
+[CV 1/3] END batch_size=500, hidden_layers=7, learning_rate=0.1, nb_epoch=5000, neurons=121;, score=-53707.71│]
+3 total time= 4.4min 
+[CV 2/3] END batch_size=500, hidden_layers=7, learning_rate=0.1, nb_epoch=5000, neurons=121;, score=-54074.57│2
+9 total time= 4.4min                                                                                         │M
+[CV 2/3] END batch_size=500, hidden_layers=15, learning_rate=0.001, nb_epoch=5000, neurons=121;, score=-55119│e
+.403 total time= 4.4min                                                                                      │m
+[CV 3/3] END batch_size=500, hidden_layers=7, learning_rate=0.1, nb_epoch=5000, neurons=121;, score=-54527.77│M
+1 total time= 4.4min                                                                                         │$
+[CV 1/3] END batch_size=500, hidden_layers=15, learning_rate=0.001, nb_epoch=5000, neurons=121;, score=-52659│5
+.700 total time= 4.4min                                                                                      │2
+[CV 3/3] END batch_size=500, hidden_layers=15, learning_rate=0.001, nb_epoch=5000, neurons=121;, score=-53925│]
+.227 total time= 4.4min                                                                                      │]
+[CV 1/3] END batch_size=500, hidden_layers=3, learning_rate=0.1, nb_epoch=5000, neurons=36;, score=-52119.514│]
+ total time= 2.7min                                                                                          │]
+[CV 1/3] END batch_size=500, hidden_layers=5, learning_rate=0.01, nb_epoch=5000, neurons=21;, score=-55785.93│]
+0 total time= 2.7min                                                                                         │]
+[CV 2/3] END batch_size=500, hidden_layers=3, learning_rate=0.1, nb_epoch=5000, neurons=36;, score=-56551.094│]
+ total time= 3.2min                                                                                          │]
+[CV 3/3] END batch_size=500, hidden_layers=3, learning_rate=0.1, nb_epoch=5000, neurons=36;, score=-54550.398│]
+ total time= 3.2min                                                                                          │]
+[CV 2/3] END batch_size=500, hidden_layers=5, learning_rate=0.01, nb_epoch=5000, neurons=21;, score=-54889.76│]
+3 total time= 3.3min                                                                                         │]
+[CV 3/3] END batch_size=500, hidden_layers=5, learning_rate=0.01, nb_epoch=5000, neurons=21;, score=-54619.53│]
+9 total time= 3.3min                                                                                         │]
+Best parameters: {'neurons': 121, 'nb_epoch': 5000, 'learning_rate': 0.001, 'hidden_layers': 15, 'batch_size'│]
+: 500}
