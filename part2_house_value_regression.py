@@ -264,19 +264,19 @@ def RegressorHyperParameterSearch(x_train, y_train):
     #######################################################################
 
     param_grid = [{
-        "nb_epoch": [5000],
+        "nb_epoch": [100],
         "batch_size": [500],
-        "hidden_layers": range(1, 20, 2),
-        "neurons": range(1, 150, 5),
-        "learning_rate": [0.001,0.01,0.1]
+        "hidden_layers": range(1, 5),
+        "neurons": range(1, 15),
+        "learning_rate": [0.001, 0.005, 0.0005, 0.0001]
         }]
 
     # TODO: add cross validation
-    search = RandomizedSearchCV(estimator=Regressor(x_train),
-                          param_distributions=param_grid,
+    search = GridSearchCV(estimator=Regressor(x_train),
+                          param_grid=param_grid,
                           n_jobs=-1,
                           verbose=4,
-                          cv=3,
+                          cv=10,
                           scoring="neg_root_mean_squared_error")
 
     result = search.fit(x_train, y_train)
@@ -302,16 +302,10 @@ def example_main():
     y_train = data.loc[:, [output_label]]
 
     x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=0.1)
-    # Training
-    # This example trains on the whole available dataset.
-    # You probably want to separate some held-out data
-    # to make sure the model isn't overfitting
     best_params = RegressorHyperParameterSearch(x_train, y_train)
     regressor = Regressor(x_train, **best_params)
     regressor.fit(x_train, y_train)
     save_regressor(regressor)
-
-    # Error
     error = regressor.score(x_test, y_test)
     print("\nRegressor error: {}\n".format(error))
         
